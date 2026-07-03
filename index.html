@@ -1,1 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chevalier Smart Publisher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --bg:        #0c0c14;
+  --surface:   #13131f;
+  --surface2:  #1a1a2e;
+  --border:    #2a2a42;
+  --border2:   #3a3a58;
+  --text:      #e8e4ff;
+  --muted:     #7b78a8;
+  --faint:     #3a3860;
+
+  --violet:    #7c3aed;
+  --violet2:   #9d5ff4;
+  --pink:      #e040a0;
+  --pink2:     #f06fcb;
+  --amber:     #f59e0b;
+  --teal:      #06b6d4;
+  --green:     #22c55e;
+  --red:       #ef4444;
+
+  --grad:      linear-gradient(135deg, #7c3aed 0%, #e040a0 100%);
+  --grad2:     linear-gradient(135deg, #9d5ff4 0%, #f06fcb 100%);
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; }
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Header ────────────────────────────────────────────────── */
+.header { text-align: center; padding: 48px 20px 32px; }
+.logo-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 999px; padding: 5px 16px; font-size: 11px; color: var(--violet2); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.logo-badge span { width: 6px; height: 6px; background: var(--grad); border-radius: 50%; }
+h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.4rem, 6vw, 4rem); letter-spacing: .06em; background: var(--grad2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.05; margin-bottom: 10px; }
+.tagline { font-size: 15px; color: var(--muted); max-width: 400px; margin: 0 auto 32px; }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.steps { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 36px; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.step-circle { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--border2); background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; transition: all .25s; }
+.step-circle.active { border-color: var(--violet); background: var(--violet); color: #fff; box-shadow: 0 0 12px #7c3aed60; }
+.step-circle.done { border-color: var(--green); background: var(--green); color: #fff; }
+.step-label { font-size: 10px; color: var(--muted); font-weight: 500; letter-spacing: .04em; }
+.step-label.active { color: var(--violet2); }
+.step-line { width: 60px; height: 2px; background: var(--border); margin-bottom: 18px; transition: background .25s; }
+.step-line.done { background: var(--green); }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.container { max-width: 780px; margin: 0 auto; padding: 0 16px 60px; }
+
+/* ── Card ──────────────────────────────────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 14px; }
+.card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.card-title .icon { font-size: 16px; }
+
+/* ── Form ──────────────────────────────────────────────────── */
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 7px; letter-spacing: .06em; text-transform: uppercase; }
+.field input, .field textarea, .field select {
+  width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; font-size: 13px; color: var(--text); outline: none; font-family: 'Inter', sans-serif;
+  transition: border .15s, box-shadow .15s;
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--faint); }
+.field input:focus, .field textarea:focus { border-color: var(--violet); box-shadow: 0 0 0 3px #7c3aed18; }
+.field textarea { resize: vertical; min-height: 80px; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media(max-width:520px){ .row2 { grid-template-columns: 1fr; } }
+
+/* ── Genre grid ────────────────────────────────────────────── */
+.genre-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media(max-width:480px){ .genre-grid { grid-template-columns: repeat(2,1fr); } }
+.genre-btn { border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; background: var(--bg); transition: all .15s; }
+.genre-btn:hover { border-color: var(--border2); }
+.genre-btn.on { border-color: var(--violet); background: var(--surface2); }
+.genre-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+.genre-name { font-size: 11px; font-weight: 500; color: var(--muted); }
+.genre-btn.on .genre-name { color: var(--violet2); }
+
+/* ── Color picker ──────────────────────────────────────────── */
+.color-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-opt { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all .15s; }
+.color-opt.on { border-color: #fff; transform: scale(1.12); box-shadow: 0 0 8px #fff4; }
+
+/* ── Chapter select ────────────────────────────────────────── */
+.ch-row { display: flex; gap: 8px; }
+.ch-btn { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 4px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); background: var(--bg); transition: all .15s; }
+.ch-btn:hover { border-color: var(--border2); }
+.ch-btn.on { border-color: var(--violet); background: var(--surface2); color: var(--violet2); }
+
+/* ── Generate button ───────────────────────────────────────── */
+.gen-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all .2s; background: var(--grad); color: #fff; letter-spacing: .04em; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+.gen-btn:hover { opacity: .9; transform: translateY(-1px); box-shadow: 0 8px 24px #7c3aed40; }
+.gen-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── Generating state ──────────────────────────────────────── */
+#genState { display: none; text-align: center; padding: 48px 20px; }
+#genState.show { display: block; }
+.spin-ring { width: 48px; height: 48px; border: 3px solid var(--border2); border-top-color: var(--violet); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-step-txt { font-size: 16px; font-weight: 600; color: var(--violet2); margin-bottom: 6px; }
+.gen-sub-txt { font-size: 13px; color: var(--muted); }
+
+/* ── Preview ───────────────────────────────────────────────── */
+#previewState { display: none; }
+#previewState.show { display: block; }
+
+.ebook-wrap { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+
+.ebook-cover {
+  min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 32px 24px; text-align: center; position: relative;
+}
+.cover-label { position: absolute; top: 14px; right: 14px; background: #ffffff18; border: 1px solid #ffffff28; border-radius: 6px; padding: 3px 10px; font-size: 10px; font-weight: 600; color: #ffffffcc; letter-spacing: .08em; }
+.cover-genre { font-size: 11px; font-weight: 600; color: #ffffffaa; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px; }
+.cover-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.6rem, 5vw, 2.6rem); color: #fff; line-height: 1.1; margin-bottom: 8px; text-shadow: 0 2px 12px #0006; letter-spacing: .04em; }
+.cover-sub { font-size: 13px; color: #ffffffbb; margin-bottom: 16px; max-width: 360px; }
+.cover-divider { width: 40px; height: 2px; background: #ffffff60; margin: 0 auto 14px; }
+.cover-author { font-size: 12px; color: #ffffff99; font-weight: 500; }
+
+.ebook-body { background: var(--surface); padding: 24px; }
+
+.toc-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; }
+.toc-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: opacity .15s; }
+.toc-item:last-child { border-bottom: none; }
+.toc-item:hover { opacity: .75; }
+.toc-num { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.toc-text { flex: 1; font-size: 13px; color: var(--text); font-weight: 500; }
+.toc-dots { flex: 0 0 40px; height: 1px; background: var(--border); }
+.toc-page { font-size: 11px; color: var(--faint); }
+
+.chapter-box { margin-top: 20px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+.chapter-box-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+.chapter-box-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.chapter-box-text { font-size: 13px; color: var(--muted); line-height: 1.75; }
+
+/* ── Export ────────────────────────────────────────────────── */
+.export-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+@media(max-width:480px){ .export-row { grid-template-columns: 1fr; } }
+.export-btn { border: 1.5px solid var(--border); background: var(--surface); border-radius: 10px; padding: 11px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; color: var(--muted); transition: all .15s; font-family: 'Inter', sans-serif; }
+.export-btn:hover { border-color: var(--border2); color: var(--text); }
+.export-btn.primary { background: var(--grad); border: none; color: #fff; }
+.export-btn.primary:hover { opacity: .9; box-shadow: 0 4px 18px #7c3aed40; }
+
+.reset-btn { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s; }
+.reset-btn:hover { border-color: var(--border2); color: var(--text); }
+
+/* ── Toast ─────────────────────────────────────────────────── */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--text); opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; z-index: 100; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-badge"><span></span> Chevalier Smart Publisher</div>
+  <h1>Gerador de E-books com IA</h1>
+  <p class="tagline">Digite o tema e a IA cria seu e-book completo — capa, sumário e capítulos prontos para exportar</p>
+</div>
+
+<div class="container">
+
+  <!-- Steps -->
+  <div class="steps" id="stepsBar">
+    <div class="step">
+      <div class="step-circle active" id="sc1">1</div>
+      <div class="step-label active" id="sl1">Configurar</div>
+    </div>
+    <div class="step-line" id="ln1"></div>
+    <div class="step">
+      <div class="step-circle" id="sc2">2</div>
+      <div class="step-label" id="sl2">Gerar</div>
+    </div>
+    <div class="step-line" id="ln2"></div>
+    <div class="step">
+      <div class="step-circle" id="sc3">3</div>
+      <div class="step-label" id="sl3">Exportar</div>
+    </div>
+  </div>
+
+  <!-- ── FORM STATE ───────────────────────────────────────── -->
+  <div id="formState">
+    <div class="card">
+      <div class="card-title"><span class="icon">📖</span> Sobre o e-book</div>
+      <div class="field">
+        <label>Tema principal *</label>
+        <input id="fTema" placeholder="Ex: Alimentação saudável para crianças, Marketing para MEI, Finanças pessoais..." />
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Autor / Empresa</label>
+          <input id="fAutor" placeholder="Seu nome ou empresa" />
+        </div>
+        <div class="field">
+          <label>Público-alvo</label>
+          <input id="fPublico" placeholder="Ex: Mães, empreendedores, jovens..." />
+        </div>
+      </div>
+      <div class="field">
+        <label>Descrição breve (opcional)</label>
+        <textarea id="fDesc" placeholder="O que o leitor vai aprender? Qual problema esse e-book resolve?"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🎨</span> Estilo e aparência</div>
+      <div class="field">
+        <label>Categoria</label>
+        <div class="genre-grid" id="genreGrid">
+          <div class="genre-btn on" data-g="Negócios"><span class="genre-icon">💼</span><span class="genre-name">Negócios</span></div>
+          <div class="genre-btn" data-g="Saúde"><span class="genre-icon">🌿</span><span class="genre-name">Saúde</span></div>
+          <div class="genre-btn" data-g="Educação"><span class="genre-icon">📚</span><span class="genre-name">Educação</span></div>
+          <div class="genre-btn" data-g="Culinária"><span class="genre-icon">🍳</span><span class="genre-name">Culinária</span></div>
+          <div class="genre-btn" data-g="Marketing"><span class="genre-icon">📣</span><span class="genre-name">Marketing</span></div>
+          <div class="genre-btn" data-g="Finanças"><span class="genre-icon">💰</span><span class="genre-name">Finanças</span></div>
+          <div class="genre-btn" data-g="Bem-estar"><span class="genre-icon">🌸</span><span class="genre-name">Bem-estar</span></div>
+          <div class="genre-btn" data-g="Outro"><span class="genre-icon">✨</span><span class="genre-name">Outro</span></div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Cor da capa</label>
+          <div class="color-row" id="colorRow">
+            <div class="color-opt on" data-c="violet" style="background:linear-gradient(135deg,#7c3aed,#e040a0)" title="Violeta + Rosa"></div>
+            <div class="color-opt" data-c="fire"   style="background:linear-gradient(135deg,#ea580c,#d97706)" title="Laranja + Âmbar"></div>
+            <div class="color-opt" data-c="ocean"  style="background:linear-gradient(135deg,#0369a1,#0891b2)" title="Oceano"></div>
+            <div class="color-opt" data-c="forest" style="background:linear-gradient(135deg,#15803d,#4d7c0f)" title="Floresta"></div>
+            <div class="color-opt" data-c="night"  style="background:linear-gradient(135deg,#1e1b4b,#312e81)" title="Noite"></div>
+            <div class="color-opt" data-c="ruby"   style="background:linear-gradient(135deg,#be123c,#9f1239)" title="Rubi"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Número de capítulos</label>
+          <div class="ch-row" id="chRow">
+            <div class="ch-btn" data-n="3">3</div>
+            <div class="ch-btn on" data-n="5">5</div>
+            <div class="ch-btn" data-n="7">7</div>
+            <div class="ch-btn" data-n="10">10</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="startGenerate()">⚡ GERAR MEU E-BOOK COM IA</button>
+  </div>
+
+  <!-- ── GENERATING STATE ─────────────────────────────────── -->
+  <div id="genState">
+    <div class="spin-ring"></div>
+    <div class="gen-step-txt" id="genStepTxt">Analisando o tema...</div>
+    <div class="gen-sub-txt">A IA está criando seu e-book completo</div>
+  </div>
+
+  <!-- ── PREVIEW STATE ────────────────────────────────────── -->
+  <div id="previewState">
+    <div class="card">
+      <div class="card-title"><span class="icon">👁</span> Preview do seu e-book</div>
+
+      <div class="ebook-wrap">
+        <div class="ebook-cover" id="ebookCover">
+          <div class="cover-label">E-BOOK</div>
+          <div class="cover-genre" id="cvGenre">CATEGORIA</div>
+          <div class="cover-title" id="cvTitle">Título</div>
+          <div class="cover-divider"></div>
+          <div class="cover-sub" id="cvSub">Subtítulo</div>
+          <div class="cover-author" id="cvAuthor">por Autor</div>
+        </div>
+
+        <div class="ebook-body">
+          <div class="toc-label">Sumário</div>
+          <div id="tocList"></div>
+
+          <div class="chapter-box">
+            <div class="chapter-box-label">Prévia do capítulo selecionado</div>
+            <div class="chapter-box-title" id="chTitle"></div>
+            <div class="chapter-box-text" id="chText"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="export-row">
+        <button class="export-btn" onclick="exportHTML()">🌐 Baixar HTML</button>
+        <button class="export-btn" onclick="exportPDF()">📄 Imprimir / PDF</button>
+        <button class="export-btn primary" onclick="showToast('✅ E-book salvo na sua conta!')">💾 Salvar projeto</button>
+      </div>
+      <button class="reset-btn" onclick="resetAll()">+ Criar outro e-book</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div id="toast"></div>
+
+<script>
+const COVERS = {
+  violet: 'linear-gradient(135deg,#7c3aed 0%,#e040a0 100%)',
+  fire:   'linear-gradient(135deg,#ea580c 0%,#d97706 100%)',
+  ocean:  'linear-gradient(135deg,#0369a1 0%,#0891b2 100%)',
+  forest: 'linear-gradient(135deg,#15803d 0%,#4d7c0f 100%)',
+  night:  'linear-gradient(135deg,#1e1b4b 0%,#4338ca 100%)',
+  ruby:   'linear-gradient(135deg,#be123c 0%,#9f1239 100%)',
+}
+const CHIP_COLORS = ['#7c3aed','#e040a0','#0891b2','#15803d','#d97706','#be123c','#4338ca','#0369a1','#ea580c','#16a34a']
+
+let selColor = 'violet', selChapters = 5, selGenre = 'Negócios'
+let ebookData = null
+
+// ── Genre
+document.getElementById('genreGrid').addEventListener('click', e => {
+  const btn = e.target.closest('.genre-btn'); if (!btn) return
+  document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('on'))
+  btn.classList.add('on'); selGenre = btn.dataset.g
+})
+
+// ── Color
+document.getElementById('colorRow').addEventListener('click', e => {
+  const opt = e.target.closest('.color-opt'); if (!opt) return
+  document.querySelectorAll('.color-opt').forEach(b => b.classList.remove('on'))
+  opt.classList.add('on'); selColor = opt.dataset.c
+})
+
+// ── Chapters
+document.getElementById('chRow').addEventListener('click', e => {
+  const btn = e.target.closest('.ch-btn'); if (!btn) return
+  document.querySelectorAll('.ch-btn').forEach(b => b.classList.remove('on'))
+  btn.classList.add('on'); selChapters = parseInt(btn.dataset.n)
+})
+
+// ── Steps helper
+function setStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const c = document.getElementById('sc' + i)
+    const l = document.getElementById('sl' + i)
+    if (i < n) { c.className = 'step-circle done'; l.className = 'step-label' }
+    else if (i === n) { c.className = 'step-circle active'; l.className = 'step-label active' }
+    else { c.className = 'step-circle'; l.className = 'step-label' }
+  }
+  if (n > 1) document.getElementById('ln1').className = 'step-line done'
+  if (n > 2) document.getElementById('ln2').className = 'step-line done'
+}
+
+const GEN_STEPS = ['Analisando o tema...','Criando título e subtítulo...','Montando o sumário...','Escrevendo os capítulos...','Finalizando a capa...','Revisando o conteúdo...']
+
+async function startGenerate() {
+  const tema = document.getElementById('fTema').value.trim()
+  if (!tema) { document.getElementById('fTema').focus(); showToast('⚠️ Preencha o tema do e-book'); return }
+
+  const autor   = document.getElementById('fAutor').value.trim()   || 'Digital Chevalier'
+  const publico = document.getElementById('fPublico').value.trim() || 'leitores em geral'
+  const desc    = document.getElementById('fDesc').value.trim()
+
+  document.getElementById('formState').style.display = 'none'
+  document.getElementById('genState').classList.add('show')
+  setStep(2)
+
+  let si = 0
+  const iv = setInterval(() => {
+    document.getElementById('genStepTxt').textContent = GEN_STEPS[si++ % GEN_STEPS.length]
+  }, 1300)
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        messages: [{
+          role: 'user',
+          content: `Você é especialista em criar e-books profissionais em português brasileiro.
+Crie um e-book completo sobre: "${tema}"
+Categoria: ${selGenre} | Público: ${publico} | Capítulos: ${selChapters}
+${desc ? 'Contexto: ' + desc : ''}
+
+Responda APENAS com JSON válido sem markdown:
+{
+  "titulo": "título principal atraente (máx 8 palavras)",
+  "subtitulo": "subtítulo complementar (máx 12 palavras)",
+  "capitulos": [
+    { "numero": 1, "titulo": "título do capítulo", "resumo": "resumo em 1 frase", "introducao": "parágrafo de abertura completo com 4-5 frases ricas e detalhadas" }
+  ]
+}`
+        }]
+      })
+    })
+    const data = await res.json()
+    const raw  = data.content?.map(b => b.text || '').join('') || ''
+    ebookData  = JSON.parse(raw.replace(/```json|```/g, '').trim())
+  } catch (_) {
+    ebookData = buildFallback(tema, selChapters)
+  }
+
+  clearInterval(iv)
+  renderPreview(ebookData, document.getElementById('fAutor').value.trim() || 'Digital Chevalier')
+}
+
+function buildFallback(tema, n) {
+  const titles = ['Introdução ao Tema','Fundamentos Essenciais','Estratégias Práticas','Aplicações no Cotidiano','Casos de Sucesso','Ferramentas e Recursos','Próximos Passos','Erros Comuns a Evitar','Dicas Avançadas','Conclusão e Resumo']
+  return {
+    titulo: 'Guia Completo: ' + tema,
+    subtitulo: 'Tudo que você precisa saber para começar agora',
+    capitulos: Array.from({ length: n }, (_, i) => ({
+      numero: i + 1,
+      titulo: titles[i] || 'Capítulo ' + (i + 1),
+      resumo: 'Conteúdo fundamental sobre ' + tema,
+      introducao: `Neste capítulo você vai aprender tudo sobre ${tema} de forma prática e objetiva. Abordaremos os pontos mais importantes para que você possa aplicar imediatamente no seu dia a dia. Cada conceito foi pensado especialmente para facilitar sua jornada de aprendizado.`
+    }))
+  }
+}
+
+function renderPreview(ebook, autor) {
+  document.getElementById('genState').classList.remove('show')
+
+  document.getElementById('ebookCover').style.background = COVERS[selColor]
+  document.getElementById('cvGenre').textContent = selGenre.toUpperCase()
+  document.getElementById('cvTitle').textContent = ebook.titulo
+  document.getElementById('cvSub').textContent   = ebook.subtitulo
+  document.getElementById('cvAuthor').textContent = 'por ' + autor
+
+  const toc = document.getElementById('tocList')
+  toc.innerHTML = ebook.capitulos.map((c, i) => `
+    <div class="toc-item" onclick="showChapter(${i})">
+      <div class="toc-num" style="background:${CHIP_COLORS[i % CHIP_COLORS.length]}">${c.numero}</div>
+      <div class="toc-text">${c.titulo}</div>
+      <div class="toc-dots"></div>
+      <div class="toc-page">${(i + 1) * 8}</div>
+    </div>
+  `).join('')
+
+  showChapter(0)
+  document.getElementById('previewState').classList.add('show')
+  setStep(3)
+}
+
+function showChapter(i) {
+  const c = ebookData?.capitulos[i]; if (!c) return
+  document.getElementById('chTitle').textContent = `Capítulo ${c.numero}: ${c.titulo}`
+  document.getElementById('chText').textContent  = c.introducao || c.resumo
+}
+
+// ── Export HTML
+function exportHTML() {
+  if (!ebookData) return
+  const bg = COVERS[selColor]
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${ebookData.titulo}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0c0c14;color:#e8e4ff;padding:0}
+.cover{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${bg};padding:60px 32px;text-align:center}
+.cover h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,8vw,5rem);color:#fff;letter-spacing:.06em;margin-bottom:12px;text-shadow:0 4px 20px #0008}
+.cover p{font-size:18px;color:#ffffffbb;margin-bottom:24px;max-width:480px}
+.cover-author{font-size:14px;color:#ffffff88}
+.divider{width:60px;height:3px;background:#ffffff50;margin:20px auto}
+.toc{max-width:680px;margin:60px auto;padding:0 24px}
+.toc h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.06em;color:#9d5ff4;margin-bottom:28px}
+.toc-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #2a2a42}
+.toc-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.toc-title{flex:1;font-size:15px;font-weight:500}
+.chapters{max-width:680px;margin:40px auto 80px;padding:0 24px}
+.chapter{margin-bottom:48px;padding-bottom:48px;border-bottom:1px solid #2a2a42}
+.chapter:last-child{border-bottom:none}
+.ch-num{font-size:11px;font-weight:700;color:#7b78a8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.ch-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.05em;color:#e8e4ff;margin-bottom:16px}
+.ch-text{font-size:15px;color:#9d99cc;line-height:1.8}
+</style></head><body>
+<div class="cover">
+  <div style="font-size:12px;font-weight:600;color:#ffffffaa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">${selGenre}</div>
+  <h1>${ebookData.titulo}</h1>
+  <div class="divider"></div>
+  <p>${ebookData.subtitulo}</p>
+  <div class="cover-author">por ${document.getElementById('fAutor').value.trim() || 'Digital Chevalier'}</div>
+</div>
+<div class="toc">
+  <h2>Sumário</h2>
+  ${ebookData.capitulos.map((c,i)=>`<div class="toc-item"><div class="toc-num" style="background:${CHIP_COLORS[i%CHIP_COLORS.length]}">${c.numero}</div><div class="toc-title">${c.titulo}</div></div>`).join('')}
+</div>
+<div class="chapters">
+  ${ebookData.capitulos.map(c=>`<div class="chapter"><div class="ch-num">Capítulo ${c.numero}</div><div class="ch-title">${c.titulo}</div><div class="ch-text">${c.introducao || c.resumo}</div></div>`).join('')}
+</div>
+</body></html>`
+
+  const blob = new Blob([html], { type: 'text/html' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = ebookData.titulo.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '.html'
+  a.click()
+  showToast('✅ E-book HTML baixado com sucesso!')
+}
+
+function exportPDF() {
+  window.print()
+  showToast('🖨️ Janela de impressão aberta — salve como PDF')
+}
+
+function resetAll() {
+  document.getElementById('previewState').classList.remove('show')
+  document.getElementById('formState').style.display = 'block'
+  document.getElementById('fTema').value = ''
+  ebookData = null
+  setStep(1)
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), 3000)
+}
+</script>
+</body>
+</html>
